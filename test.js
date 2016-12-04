@@ -6,6 +6,7 @@ it('tests random things', function(done) {
   let feedbackEvaluated = false;
   const testArgument = 1.0;
   const testFeedback = true;
+  const testReturnValue = 3.0;
 
   function evaluateFeedback(accept, reject, prev, feedback) {
     feedbackEvaluated = true;
@@ -22,7 +23,7 @@ it('tests random things', function(done) {
   const testFunction = s.action(
       (arg) => {
         assert(arg === testArgument);
-        return 1;
+        return testReturnValue;
       },
       (accept, reject, feedback, delta) => { // Monitoring arguments
         return (arg) => { // Original call arguments
@@ -36,7 +37,7 @@ it('tests random things', function(done) {
   const a = testFunction(testArgument)(() => {
     return false; // <- returned if halted
   });
-  assert(a === 1);
+  assert(a === testReturnValue);
 
   assert(feedbackEvaluated === false);
   const isOpen = s.giveFeedback(testFeedback);
