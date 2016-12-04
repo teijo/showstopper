@@ -62,8 +62,7 @@ const Showstopper = (immediateFeedbackEvaluator, maximumFeedbackSilence, initial
                   () => {
                     isOpenCircuit = true;
                   },
-                  feedback,
-                  deltaTime).apply(null, cmd.actionArguments);
+                  feedback).apply(null, cmd.actionArguments);
               debug(`Circuit ${isOpenCircuit ? 'open' : 'closed'} after command evaluation`);
 
               return {evaluated: true};

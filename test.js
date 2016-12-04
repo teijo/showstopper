@@ -25,9 +25,8 @@ it('tests random things', function(done) {
         assert(arg === testArgument);
         return testReturnValue;
       },
-      (accept, reject, feedback, delta) => { // Monitoring arguments
+      (accept, reject, feedback) => { // Monitoring arguments
         return (arg) => { // Original call arguments
-          assert(delta <= 1);
           assert(arg === testArgument);
           assert(feedback === testFeedback);
           accept();
