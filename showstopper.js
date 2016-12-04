@@ -24,7 +24,7 @@ const Showstopper = (immediateFeedbackEvaluator, maximumFeedbackSilence, initial
         const args = Array.from(arguments);
         return (closedCircuitFallback) => {
           actions.push({eval: actionEffectEvaluator, actionArguments: args, earliestEvalDate: new Date(Date.now() + effectPropagationDelay)});
-          return isOpenCircuit ? closedCircuitFallback() : action.apply(null, args);
+          return isOpenCircuit ? closedCircuitFallback(previousState) : action.apply(null, args);
         };
       };
     },

@@ -11,7 +11,7 @@ it('tests random things', function(done) {
   function evaluateFeedback(accept, reject, state, feedback) {
     feedbackEvaluated = true;
     assert(state === testFeedback);
-    if (feedback) {
+    if (feedback === testFeedback) {
       accept(feedback);
     } else {
       reject(feedback);
@@ -43,6 +43,14 @@ it('tests random things', function(done) {
   const isOpen = s.giveFeedback(testFeedback);
   assert(feedbackEvaluated === true);
   assert(isOpen === false);
+
+  s.giveFeedback('bar to fail');
+
+  const b = testFunction(testArgument)((state) => {
+    return state;
+  });
+
+  assert(b === 'bar to fail');
 
   done();
 });
