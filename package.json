@@ -4,8 +4,7 @@
   "description": "",
   "main": "showstopper.js",
   "scripts": {
-    "test": "mocha",
-    "watch": "mocha --watch"
+    "test": "npm install && mocha --watch"
   },
   "repository": {
     "type": "git",

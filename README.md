@@ -12,3 +12,8 @@ server. In HTTP responses this would be analogous to getting 'asynchronous'
 
 What happens if the side-effect leads to an error when the action is finally
 evaluated? How should it be reflected for the client that created the call?
+
+
+## Developing
+
+- `npm test` to automatically run tests on chenges
