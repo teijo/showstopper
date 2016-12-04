@@ -1,0 +1,24 @@
+{
+  "name": "showstopper",
+  "version": "0.0.0",
+  "description": "",
+  "main": "showstopper.js",
+  "scripts": {
+    "test": "mocha",
+    "watch": "mocha --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/teijo/showstopper.git"
+  },
+  "author": "Teijo Laine (https://github.com/teijo)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/teijo/showstopper/issues"
+  },
+  "homepage": "https://github.com/teijo/showstopper#readme",
+  "devDependencies": {
+    "baconjs": "^0.7.89",
+    "mocha": "^3.2.0"
+  }
+}
