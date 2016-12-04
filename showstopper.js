@@ -1,14 +1,15 @@
 const use_debug = false;
 const debug = (msg) => use_debug ? console.log(msg) : null;
 
-const Showstopper = (immediateFeedbackEvaluator, maximumFeedbackSilence) => {
+const Showstopper = (immediateFeedbackEvaluator, maximumFeedbackSilence, initialState) => {
   let actions = [];
 
   let feedbackTimeout = null;
   let isOpen = false;
+  let previousState = initialState;
 
   return {
-    register(action, actionEffectEvaluator, effectPropagationDelay = 0) {
+    action(action, actionEffectEvaluator, effectPropagationDelay = 0) {
       return function(/*args delegated to action*/) {
         const args = Array.from(arguments);
         return (closedCircuitFallback) => {
@@ -23,7 +24,17 @@ const Showstopper = (immediateFeedbackEvaluator, maximumFeedbackSilence) => {
       clearTimeout(feedbackTimeout);
       feedbackTimeout = setTimeout(() => isOpen = true, maximumFeedbackSilence);
 
-      isOpen = !immediateFeedbackEvaluator(feedback);
+      immediateFeedbackEvaluator(
+          (data) => {
+            previousState = data;
+            isOpen = false;
+          },
+          (data) => {
+            previousState = data;
+            isOpen = true;
+          },
+          previousState,
+          feedback);
 
       debug(`Circuit ${isOpen ? 'open' : 'closed'} after immediate evaluation`);
 
@@ -44,7 +55,15 @@ const Showstopper = (immediateFeedbackEvaluator, maximumFeedbackSilence) => {
               }
 
               // A single false must break the system
-              isOpen = isOpen || !cmd.eval(feedback, deltaTime).apply(null, cmd.actionArguments);
+              cmd.eval(
+                  () => {
+                    isOpen = false;
+                  },
+                  () => {
+                    isOpen = true;
+                  },
+                  feedback,
+                  deltaTime).apply(null, cmd.actionArguments);
               debug(`Circuit ${isOpen ? 'open' : 'closed'} after command evaluation`);
 
               return {evaluated: true};

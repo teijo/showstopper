@@ -5,32 +5,35 @@ const {it} = require('mocha');
 it('tests random things', function(done) {
   let feedbackEvaluated = false;
   const testArgument = 1.0;
-  const testFeedback = 2.0;
+  const testFeedback = true;
 
-  function evaluateFeedback(data) {
+  function evaluateFeedback(accept, reject, prev, feedback) {
     feedbackEvaluated = true;
-    return (data === testFeedback); // If disconnected, open circuit
+    assert(prev === testFeedback);
+    if (feedback) {
+      accept(feedback);
+    } else {
+      reject(feedback);
+    }
   }
 
-  const s = Showstopper(evaluateFeedback, 1200);
+  const s = Showstopper(evaluateFeedback, 1200, true);
 
-  const evaluateAction = (feedback, delta) => { // Monitoring arguments
-    return (arg) => { // Original call arguments
-      assert(delta <= 1);
-      assert(arg === testArgument);
-      assert(feedback === 2.0);
-      return true;
-    };
-  };
+  const testFunction = s.action(
+      (arg) => {
+        assert(arg === testArgument);
+        return 1;
+      },
+      (accept, reject, feedback, delta) => { // Monitoring arguments
+        return (arg) => { // Original call arguments
+          assert(delta <= 1);
+          assert(arg === testArgument);
+          assert(feedback === testFeedback);
+          accept();
+        };
+      });
 
-  const doAction = (arg) => {
-    assert(arg === testArgument);
-    return 1;
-  };
-
-  const action = s.register(doAction, evaluateAction);
-
-  const a = action(testArgument)(() => {
+  const a = testFunction(testArgument)(() => {
     return false; // <- returned if halted
   });
   assert(a === 1);
