@@ -8,9 +8,9 @@ it('tests random things', function(done) {
   const testFeedback = true;
   const testReturnValue = 3.0;
 
-  function evaluateFeedback(accept, reject, prev, feedback) {
+  function evaluateFeedback(accept, reject, state, feedback) {
     feedbackEvaluated = true;
-    assert(prev === testFeedback);
+    assert(state === testFeedback);
     if (feedback) {
       accept(feedback);
     } else {
@@ -25,11 +25,12 @@ it('tests random things', function(done) {
         assert(arg === testArgument);
         return testReturnValue;
       },
-      (accept, reject, feedback) => { // Monitoring arguments
+      (accept, reject, state, feedback) => { // Monitoring arguments
         return (arg) => { // Original call arguments
+          assert(state === testFeedback);
           assert(arg === testArgument);
           assert(feedback === testFeedback);
-          accept();
+          accept(feedback);
         };
       });
 
