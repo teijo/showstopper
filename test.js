@@ -1,8 +1,8 @@
 const Showstopper = require('./showstopper.js');
 const assert = require('assert');
-const {it} = require('mocha');
+const {it, describe} = require('mocha');
 
-it('tests random things', function(done) {
+describe('Showstopper', () => {
   let feedbackEvaluated = false;
   const testArgument = 1.0;
   const testFeedback = true;
@@ -34,23 +34,47 @@ it('tests random things', function(done) {
         };
       });
 
-  const a = testFunction(testArgument)(() => {
-    return false; // <- returned if halted
+  describe('action', () => {
+    describe('with closed state', () => {
+      const a = testFunction(testArgument)(() => {
+        return false; // <- returned if halted
+      });
+
+      it('returns wrapped function result', () => {
+        assert(a === testReturnValue);
+      });
+    });
+
+    describe('before feedback', () => {
+      describe('after', () => {
+        const isOpen = s.giveFeedback(testFeedback);
+
+        it('has been evaluated', () => {
+          assert(feedbackEvaluated === true);
+        });
+
+        it('is open', () => {
+          assert(isOpen === false);
+        });
+      });
+    });
+
+    describe('with open state', () => {
+      const isOpen = s.giveFeedback('bar to fail');
+
+      it('causes action to return fallback value', () => {
+        assert(isOpen === true);
+      });
+
+      describe('calling action', () => {
+        const b = testFunction(testArgument)((state) => {
+          return state;
+        });
+
+        it('causes action to return fallback value', () => {
+          assert(b === 'bar to fail');
+        });
+      });
+    });
   });
-  assert(a === testReturnValue);
-
-  assert(feedbackEvaluated === false);
-  const isOpen = s.giveFeedback(testFeedback);
-  assert(feedbackEvaluated === true);
-  assert(isOpen === false);
-
-  s.giveFeedback('bar to fail');
-
-  const b = testFunction(testArgument)((state) => {
-    return state;
-  });
-
-  assert(b === 'bar to fail');
-
-  done();
 });
