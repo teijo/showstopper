@@ -5,7 +5,7 @@ const Showstopper = (immediateFeedbackEvaluator, maximumFeedbackSilence, initial
   let actions = [];
 
   let feedbackTimeout = null;
-  let isOpen = false;
+  let isOpenCircuit = false;
   let previousState = initialState;
 
   return {
@@ -14,7 +14,7 @@ const Showstopper = (immediateFeedbackEvaluator, maximumFeedbackSilence, initial
         const args = Array.from(arguments);
         return (closedCircuitFallback) => {
           actions.push({eval: actionEffectEvaluator, actionArguments: args, earliestEvalDate: new Date(Date.now() + effectPropagationDelay)});
-          return isOpen ? closedCircuitFallback() : action.apply(null, args);
+          return isOpenCircuit ? closedCircuitFallback() : action.apply(null, args);
         };
       };
     },
@@ -22,23 +22,23 @@ const Showstopper = (immediateFeedbackEvaluator, maximumFeedbackSilence, initial
     // Must be invoked at least every minimumFeedbackInterval
     giveFeedback(feedback) {
       clearTimeout(feedbackTimeout);
-      feedbackTimeout = setTimeout(() => isOpen = true, maximumFeedbackSilence);
+      feedbackTimeout = setTimeout(() => isOpenCircuit = true, maximumFeedbackSilence);
 
       immediateFeedbackEvaluator(
           (data) => {
             previousState = data;
-            isOpen = false;
+            isOpenCircuit = false;
           },
           (data) => {
             previousState = data;
-            isOpen = true;
+            isOpenCircuit = true;
           },
           previousState,
           feedback);
 
-      debug(`Circuit ${isOpen ? 'open' : 'closed'} after immediate evaluation`);
+      debug(`Circuit ${isOpenCircuit ? 'open' : 'closed'} after immediate evaluation`);
 
-      if (!isOpen) {
+      if (!isOpenCircuit) {
         const now = new Date();
 
         actions = actions
@@ -57,14 +57,14 @@ const Showstopper = (immediateFeedbackEvaluator, maximumFeedbackSilence, initial
               // A single false must break the system
               cmd.eval(
                   () => {
-                    isOpen = false;
+                    isOpenCircuit = false;
                   },
                   () => {
-                    isOpen = true;
+                    isOpenCircuit = true;
                   },
                   feedback,
                   deltaTime).apply(null, cmd.actionArguments);
-              debug(`Circuit ${isOpen ? 'open' : 'closed'} after command evaluation`);
+              debug(`Circuit ${isOpenCircuit ? 'open' : 'closed'} after command evaluation`);
 
               return {evaluated: true};
             })
@@ -75,7 +75,7 @@ const Showstopper = (immediateFeedbackEvaluator, maximumFeedbackSilence, initial
       }
 
       // State after evaluating effects against latest feedback
-      return isOpen;
+      return isOpenCircuit;
     }
   };
 };
