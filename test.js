@@ -1,6 +1,91 @@
 const Showstopper = require('./showstopper.js');
-const {equal} = require('chai').assert;
-const {it, describe} = require('mocha');
+const {equal, isBelow, isAbove} = require('chai').assert;
+const {it, describe, beforeEach} = require('mocha');
+
+const TestTimer = (initialMs) => {
+  let modified = Date.now();
+  let targetMs = initialMs;
+  let isIncrementing = true;
+  return {
+    setTarget(newTargetMs) {
+      isIncrementing = newTargetMs > targetMs;
+      targetMs = newTargetMs;
+      modified = Date.now();
+    },
+    get() {
+      let timeSinceModification = (Date.now() - modified);
+      if (isIncrementing) {
+        return Math.min(timeSinceModification, targetMs);
+      } else {
+        return Math.max(-timeSinceModification, targetMs);
+      }
+    }
+  }
+};
+
+describe('Test timer', () => {
+  describe('when only initialized', () => {
+    const t = TestTimer(1);
+
+    it('returns initial value', () => {
+      equal(t.get(), 1);
+    });
+  });
+
+  describe('when incrementing', () => {
+    let t = 0;
+
+    beforeEach(() => {
+      t = TestTimer(0);
+      t.setTarget(100);
+    });
+
+    it('returns less than target value immediately', () => {
+      isBelow(t.get(), 100);
+    });
+
+    it('timer increases', (done) => {
+      setTimeout(()=> {
+        isAbove(t.get(), 0);
+        done();
+      }, 1);
+    });
+
+    it('returns at most target value', (done) => {
+      setTimeout(() => {
+        equal(t.get(), 100);
+        done();
+      }, 200);
+    });
+  });
+
+  describe('when decrementing', () => {
+    let t = 0;
+
+    beforeEach(() => {
+      t = TestTimer(0);
+      t.setTarget(-100);
+    });
+
+    it('returns greater than target value immediately', () => {
+      isAbove(t.get(), -100);
+    });
+
+    it('timer decreases', (done) => {
+      setTimeout(()=> {
+        isBelow(t.get(), 0);
+        done();
+      }, 1);
+    });
+
+    it('returns at most target value', (done) => {
+      setTimeout(() => {
+        equal(t.get(), -100);
+        done();
+      }, 200);
+    });
+  });
+});
 
 describe('Showstopper', () => {
   let feedbackEvaluated = false;
