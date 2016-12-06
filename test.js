@@ -1,5 +1,5 @@
 const Showstopper = require('./showstopper.js');
-const assert = require('assert');
+const {equal} = require('chai').assert;
 const {it, describe} = require('mocha');
 
 describe('Showstopper', () => {
@@ -10,7 +10,7 @@ describe('Showstopper', () => {
 
   function evaluateFeedback(accept, reject, state, feedback) {
     feedbackEvaluated = true;
-    assert(state === testFeedback);
+    equal(state, testFeedback);
     if (feedback === testFeedback) {
       accept(feedback);
     } else {
@@ -22,14 +22,14 @@ describe('Showstopper', () => {
 
   const testFunction = s.action(
       (arg) => {
-        assert(arg === testArgument);
+        equal(arg, testArgument);
         return testReturnValue;
       },
       (accept, reject, state, feedback) => { // Monitoring arguments
         return (arg) => { // Original call arguments
-          assert(state === testFeedback);
-          assert(arg === testArgument);
-          assert(feedback === testFeedback);
+          equal(state, testFeedback);
+          equal(arg, testArgument);
+          equal(feedback, testFeedback);
           accept(feedback);
         };
       });
@@ -41,7 +41,7 @@ describe('Showstopper', () => {
       });
 
       it('returns wrapped function result', () => {
-        assert(a === testReturnValue);
+        equal(a, testReturnValue);
       });
     });
 
@@ -50,11 +50,11 @@ describe('Showstopper', () => {
         const isOpen = s.giveFeedback(testFeedback);
 
         it('has been evaluated', () => {
-          assert(feedbackEvaluated === true);
+          equal(feedbackEvaluated, true);
         });
 
         it('is open', () => {
-          assert(isOpen === false);
+          equal(isOpen, false);
         });
       });
     });
@@ -63,7 +63,7 @@ describe('Showstopper', () => {
       const isOpen = s.giveFeedback('bar to fail');
 
       it('causes action to return fallback value', () => {
-        assert(isOpen === true);
+        equal(isOpen, true);
       });
 
       describe('calling action', () => {
@@ -72,7 +72,7 @@ describe('Showstopper', () => {
         });
 
         it('causes action to return fallback value', () => {
-          assert(b === 'bar to fail');
+          equal(b, 'bar to fail');
         });
       });
     });

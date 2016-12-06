@@ -18,6 +18,7 @@
   "homepage": "https://github.com/teijo/showstopper#readme",
   "devDependencies": {
     "baconjs": "^0.7.89",
+    "chai": "^3.5.0",
     "mocha": "^3.2.0"
   }
 }
